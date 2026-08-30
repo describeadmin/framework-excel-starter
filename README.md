@@ -24,7 +24,7 @@ describeadmin 的**可选插件**：Excel 导入 / 导出——门面 `ExcelExpo
 
 | 插件版本 | 最低框架版本 | 说明 |
 |---|---|---|
-| 0.1.0 | **0.2.0** | 依赖 framework-web-starter 0.2.0 的 MVC 装配点与 `GlobalExceptionHandler` 契约；门面部分只依赖 framework-common |
+| 0.2.0 | **0.2.0** | 依赖 framework-web-starter 0.2.0 的 MVC 装配点与 `GlobalExceptionHandler` 契约；门面部分只依赖 framework-common |
 
 这张表不是文档承诺，是**可执行的**：
 
@@ -52,7 +52,7 @@ describeadmin 的**可选插件**：Excel 导入 / 导出——门面 `ExcelExpo
 <dependency>
   <groupId>io.github.describeadmin</groupId>
   <artifactId>framework-excel-starter</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
