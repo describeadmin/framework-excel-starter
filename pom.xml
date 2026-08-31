@@ -19,7 +19,7 @@
 
   <groupId>io.github.describeadmin</groupId>
   <artifactId>framework-excel-starter</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.2.0</version>
   <packaging>jar</packaging>
 
   <name>describeadmin :: framework-excel-starter</name>
@@ -64,7 +64,7 @@
       插件自身版本号（上面的 <version>）与它【不联动】。
       CI 的兼容性矩阵靠覆盖它实现：mvn -B test -Ddescribeadmin.version=0.3.0
     -->
-    <describeadmin.version>0.2.0-SNAPSHOT</describeadmin.version>
+    <describeadmin.version>0.2.0</describeadmin.version>
 
     <!--
       Apache Fesod（孵化中）—— Alibaba EasyExcel / FastExcel 的 ASF 捐赠版。

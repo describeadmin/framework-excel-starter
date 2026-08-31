@@ -10,9 +10,10 @@
 > **本插件的版本线与框架独立**。插件发 1.3.0 完全可能仍然只要求框架 1.0.0，
 > 因此每个版本都必须写明适配的框架版本，见下方各条目的「框架要求」。
 
-## 0.1.0-SNAPSHOT (开发中)
+## 0.2.0 (2026-08-31)
 
 describeadmin 的第一个 Web 层插件：为框架补上 Excel 导入 / 导出能力。
+首个发布版本，版本号与 framework 0.2.0 对齐（本轮四个插件统一按框架号发布）。
 
 **框架要求：0.2.0 及以上**（依赖 framework-web-starter 0.2.0 的 MVC 装配点与
 `GlobalExceptionHandler` 契约；门面部分只依赖 framework-common）
@@ -58,7 +59,7 @@ describeadmin 的第一个 Web 层插件：为框架补上 Excel 导入 / 导出
 - 独立成仓、独立版本线、独立发布（原方案 3.1.1 的既定拓扑）。
 - POM **不继承 `framework-parent`**，改为 `import framework-bom`——这正是业务方消费框架的
   姿势，插件用同一套姿势才能提前暴露业务方会遇到的问题。CI 按框架版本矩阵跑完整测试。
-- ⚠️ 尚未发布：等 framework 0.2.0 上 Maven Central 后才能发（`import` 的 `framework-bom`
-  必须是一个真实存在的已发布版本）。
+- 发布晚于 framework 0.2.0：`import` 的 `framework-bom` 必须是一个真实存在的已发布版本，
+  因此本插件的首发版本直接从 0.2.0 起。
 - ⚠️ 已知风险：Apache Fesod 仍在孵化，其 POM 自述 EasyExcel 衍生代码 IP clearance 未完成，
   下游需自行做许可审查——已写进 README「兼容性」小节。
