@@ -7,7 +7,7 @@
 > 设计依据见 `develop_plan.md`；版本事实见 `VERSION_BASELINE.md`。
 > 本文件只写"必须遵守的约定"，不重复方案里的论证过程。
 
-***
+---
 
 ## 0. 先读这里
 
@@ -21,41 +21,41 @@
 多仓拓扑下，改动一个 SPI 接口通常要同步改 `framework` + 对应 `framework-ext-*` + `frontend`。
 动手前先跑 `./scripts/clone-all.sh` 拿到完整上下文。
 
-***
+---
 
 ## 1. 版本与环境（硬约束）
 
-| 项           | 取值                                    | 说明                                                                     |
-| ----------- | ------------------------------------- | ---------------------------------------------------------------------- |
-| 构建 JDK      | **17+**                               | 任意 JDK ≥ 17 均可；由 enforcer 的 `requireJavaVersion` 兜底，不再用 toolchains 钉版本 |
-| 编译目标        | **`maven.compiler.release=17`**       | 产物必须能在 Java 17 上运行                                                     |
-| Spring Boot | **3.5.16**                            | 不要升级到 4.x，理由见方案 2.2.1                                                  |
-| Jackson     | **2.x**（`com.fasterxml.jackson.*`）    | 不要使用 `tools.jackson.*`（那是 Jackson 3）                                   |
-| Node / pnpm | node `^22.18 \|\| ^24.12`，pnpm `>=11` | <br />                                                                 |
+| 项 | 取值 | 说明 |
+|---|---|---|
+| 构建 JDK | **17+** | 任意 JDK ≥ 17 均可；由 enforcer 的 `requireJavaVersion` 兜底，不再用 toolchains 钉版本 |
+| 编译目标 | **`maven.compiler.release=17`** | 产物必须能在 Java 17 上运行 |
+| Spring Boot | **3.5.16** | 不要升级到 4.x，理由见方案 2.2.1 |
+| Jackson | **2.x**（`com.fasterxml.jackson.*`） | 不要使用 `tools.jackson.*`（那是 Jackson 3） |
+| Node / pnpm | node `^22.18 \|\| ^24.12`，pnpm `>=11` | |
 
 **构建 JDK 只要求 ≥ 17**——`maven.compiler.release=17` 已保证产物在 Java 17 上运行，
 构建用 17 / 21 / 25 都行，`PATH` 上默认是哪个 `java` 无所谓（低于 17 会被 enforcer 拦下）。
-`framework` / 各插件 / `codegen` 均**不再用** **`maven-toolchains-plugin`**——钉死具体版本只会让没配
+`framework` / 各插件 / `codegen` 均**不再用 `maven-toolchains-plugin`**——钉死具体版本只会让没配
 `~/.m2/toolchains.xml` 的人以 `Cannot find matching toolchain` 直接构建失败，比它要防的坑更劝退
-（见 develop\_plan.md 2.2.2 与 VERSION\_BASELINE 第八轮）。唯一仍配 toolchains 的是 `sample-app`，
+（见 develop_plan.md 2.2.2 与 VERSION_BASELINE 第八轮）。唯一仍配 toolchains 的是 `sample-app`，
 它刻意钉 JDK 17，用最低支持版本验证兼容承诺。
 
 **版本核查纪律**：任何依赖版本以 `https://repo1.maven.org/maven2/**/maven-metadata.xml`
 和 `https://registry.npmjs.org/<pkg>` 为准。
-**禁止使用** **`search.maven.org/solrsearch`**——该索引已陈旧，且会对真实存在的制品返回 `numFound=0`。
+**禁止使用 `search.maven.org/solrsearch`**——该索引已陈旧，且会对真实存在的制品返回 `numFound=0`。
 
-***
+---
 
 ## 2. 命名规范
 
-| 场景               | 规则                          | 示例                                  |
-| ---------------- | --------------------------- | ----------------------------------- |
-| GitHub 组织        | `describeadmin`             | <https://github.com/describeadmin>  |
-| Maven groupId    | `io.github.describeadmin`   | 已在 Central Portal 完成命名空间验证          |
-| **Java 包名**      | `io.github.describeadmin.*` | 与 groupId **完全一致**                  |
-| Maven artifactId | `framework-<能力>-starter`    | `framework-notify-dingtalk-starter` |
-| npm 组织 / 包       | `@describeadmin/<能力>`       | `@describeadmin/ui`                 |
-| Spring 配置前缀      | `describeadmin.<模块>`        | `describeadmin.web.trace.enabled`   |
+| 场景 | 规则 | 示例 |
+|---|---|---|
+| GitHub 组织 | `describeadmin` | https://github.com/describeadmin |
+| Maven groupId | `io.github.describeadmin` | 已在 Central Portal 完成命名空间验证 |
+| **Java 包名** | `io.github.describeadmin.*` | 与 groupId **完全一致** |
+| Maven artifactId | `framework-<能力>-starter` | `framework-notify-dingtalk-starter` |
+| npm 组织 / 包 | `@describeadmin/<能力>` | `@describeadmin/ui` |
+| Spring 配置前缀 | `describeadmin.<模块>` | `describeadmin.web.trace.enabled` |
 
 全部标识符统一为 `describeadmin`（无连字符），groupId 与 Java 包名一一对应，无需做任何映射。
 
@@ -71,11 +71,11 @@ io.github.describeadmin.<模块>
 
 `api/` 包下的任何 public 签名变更都是 Breaking Change。
 
-**`util/`** **不在兼容性承诺范围内**，因此它只放模块内部用的东西。
+**`util/` 不在兼容性承诺范围内**，因此它只放模块内部用的东西。
 真要给业务方用的工具必须放 `api/`——但在放进去之前先读 4.7，
 多数"工具类"根本不该进框架。
 
-***
+---
 
 ## 3. 数据库约定（强制）
 
@@ -115,7 +115,7 @@ CREATE TABLE sys_example (
 
 默认数据库自增（`IdType.AUTO`），通过
 `mybatis-plus.global-config.db-config.id-type` 可切换为雪花 ID。
-**不要在实体类上硬编码** **`@TableId(type = ...)`**，让全局配置生效。
+**不要在实体类上硬编码 `@TableId(type = ...)`**，让全局配置生效。
 
 ### 3.4 JDBC 驱动
 
@@ -128,17 +128,17 @@ CREATE TABLE sys_example (
 
 ### 3.5 分页
 
-MyBatis-Plus 的 `DbType` 必须是配置项，**不要硬编码** **`DbType.MYSQL`**。
+MyBatis-Plus 的 `DbType` 必须是配置项，**不要硬编码 `DbType.MYSQL`**。
 
 ### 3.6 ⚠️ 字符集：任何读取 SQL/数据文件的环节都必须显式指定编码
 
-本项目已在**两个不同入口**因这一条踩坑（见 VERSION\_BASELINE.md 发现 ④、⑤）：
+本项目已在**两个不同入口**因这一条踩坑（见 VERSION_BASELINE.md 发现 ④、⑤）：
 
-| 入口                       | 默认行为                           | 必须显式指定                            |
-| ------------------------ | ------------------------------ | --------------------------------- |
-| `mysql` CLI 导入脚本         | 使用客户端默认字符集                     | `--default-character-set=utf8mb4` |
-| Spring `spring.sql.init` | 使用**平台默认编码**（中文 Windows 为 GBK） | `spring.sql.init.encoding=UTF-8`  |
-| 测试 JVM                   | 平台默认编码                         | surefire `-Dfile.encoding=UTF-8`  |
+| 入口 | 默认行为 | 必须显式指定 |
+|---|---|---|
+| `mysql` CLI 导入脚本 | 使用客户端默认字符集 | `--default-character-set=utf8mb4` |
+| Spring `spring.sql.init` | 使用**平台默认编码**（中文 Windows 为 GBK） | `spring.sql.init.encoding=UTF-8` |
+| 测试 JVM | 平台默认编码 | surefire `-Dfile.encoding=UTF-8` |
 
 **症状极具欺骗性**：中文全部写成乱码，但 `COUNT(*)` 校验完全正常，环境看起来健康。
 
@@ -158,10 +158,10 @@ assertThat(nickname).isEqualTo("超级管理员");
 网上绝大多数 MyBatis-Plus 资料、以及 AI 依据旧语料生成的代码，用的都是**旧包路径**。
 3.5.x 后期做过两次拆分，以下两条**必须按实测结果写**：
 
-| 类                            | ❌ 旧路径（绝大多数资料/AI 输出）                                 | ✅ 3.5.17 实际路径                                     | 所在制品                      |
-| ---------------------------- | --------------------------------------------------- | ------------------------------------------------- | ------------------------- |
-| `IService` / `ServiceImpl`   | `com.baomidou.mybatisplus.extension.service[.impl]` | `com.baomidou.mybatisplus.spring.service[.impl]`  | `mybatis-plus-spring`     |
-| `PaginationInnerInterceptor` | `...extension.plugins.inner`（仍在此包名下）                | 包名不变，但**已移出** **`mybatis-plus-extension`** **制品** | `mybatis-plus-jsqlparser` |
+| 类 | ❌ 旧路径（绝大多数资料/AI 输出） | ✅ 3.5.17 实际路径 | 所在制品 |
+|---|---|---|---|
+| `IService` / `ServiceImpl` | `com.baomidou.mybatisplus.extension.service[.impl]` | `com.baomidou.mybatisplus.spring.service[.impl]` | `mybatis-plus-spring` |
+| `PaginationInnerInterceptor` | `...extension.plugins.inner`（仍在此包名下） | 包名不变，但**已移出 `mybatis-plus-extension` 制品** | `mybatis-plus-jsqlparser` |
 
 后者的症状是编译报 `找不到符号: 类 PaginationInnerInterceptor`——包名看着对，
 是**制品**没引。`framework-mybatis-starter` 已显式引入 `mybatis-plus-jsqlparser`。
@@ -174,13 +174,13 @@ unzip -l ~/.m2/repository/com/baomidou/<制品>/3.5.17/<制品>-3.5.17.jar | gre
 
 业务代码继承框架的 `BaseService` / `BaseController` 即可，正常情况下不需要直接 import 这些类。
 
-***
+---
 
 ## 4. 代码约定
 
 ### 4.1 分层与基类
 
-生成器与业务代码产出的是\*\*"薄"代码\*\*，通用逻辑留在框架基类：
+生成器与业务代码产出的是**"薄"代码**，通用逻辑留在框架基类：
 
 ```java
 public class DeptEntity extends BaseEntity { ... }
@@ -254,6 +254,7 @@ public Result<Void> resetPassword(...) { ... }
 但关闭状态下**任何已登录账号都能调用任何接口**，权限点仍会下发给前端用于按钮显隐，
 于是界面看起来受控、实际不受控。不要用于生产。
 
+
 ### 4.6 插件
 
 新增能力前先判断它该进核心还是做插件。满足下面任一条 → **必须做插件**：
@@ -268,7 +269,7 @@ public Result<Void> resetPassword(...) { ... }
 `enforce-core-thin` 这条 enforcer 规则在构建期堵死。
 
 **插件一律独立成仓**，不作为 `framework` 仓的 module —— 版本线与发布都不绑定框架。
-插件 POM **不继承** **`framework-parent`**，改为 `import framework-bom`：那正是业务方消费框架的
+插件 POM **不继承 `framework-parent`**，改为 `import framework-bom`：那正是业务方消费框架的
 姿势，插件用同一套姿势才能提前暴露业务方会遇到的问题。代价是构建配置要自带一份
 （`release=17`、surefire 编码、enforcer 的 `requireJavaVersion` + JDBC 驱动 + Jackson 3 三条），
 但**不带** `enforce-core-thin` —— 插件的职责就是引入那些重依赖。
@@ -323,7 +324,7 @@ public Result<Void> resetPassword(...) { ... }
   时间相关真正该做的三件是 4.8 的序列化格式、可注入的 `Clock`、以及把时区口径写进文档
   （DB `DATETIME` → Java `LocalDateTime` → 前端按浏览器本地，链路上不出现
   `Date`/`Timestamp`/`Instant` 就自洽），**没有一件是工具类**
-- **不引 Hutool**——\~1.5MB 单体依赖、版本节奏与框架无关，且它大量工具做的正是
+- **不引 Hutool**——~1.5MB 单体依赖、版本节奏与框架无关，且它大量工具做的正是
   本文件明令禁止的事（各种 `Date` 转换）。业务方想用自己引
 
 ### 4.8 JSON 序列化约定
@@ -331,19 +332,19 @@ public Result<Void> resetPassword(...) { ... }
 由 `framework-web-starter` 的 `FrameworkJsonModule` 统一承担，
 开关前缀 `describeadmin.web.json.*`。三条硬约定：
 
-| 约定                        | 值                                                 | 为什么                                                                                                                                   |
-| ------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `Long` / `long` → **字符串** | 默认开                                               | 雪花 ID 是 19 位，超过 JS `Number.MAX_SAFE_INTEGER`（16 位），前端 `JSON.parse` 会静默舍入末几位——**列表显示正常，点编辑/删除报「记录不存在」或改错行**。3.3 明确支持切雪花，框架就得保证切过去之后是对的 |
-| 时间输出                      | `yyyy-MM-dd HH:mm:ss` / `yyyy-MM-dd` / `HH:mm:ss` | 与 codegen 生成的日期选择器 `value-format` 对齐                                                                                                  |
-| 时间输入                      | **出严进宽**：`T` 与空格分隔都接受，秒与小数秒可省                     | 不打断已经在发 ISO 的调用方                                                                                                                      |
+| 约定 | 值 | 为什么 |
+|---|---|---|
+| `Long` / `long` → **字符串** | 默认开 | 雪花 ID 是 19 位，超过 JS `Number.MAX_SAFE_INTEGER`（16 位），前端 `JSON.parse` 会静默舍入末几位——**列表显示正常，点编辑/删除报「记录不存在」或改错行**。3.3 明确支持切雪花，框架就得保证切过去之后是对的 |
+| 时间输出 | `yyyy-MM-dd HH:mm:ss` / `yyyy-MM-dd` / `HH:mm:ss` | 与 codegen 生成的日期选择器 `value-format` 对齐 |
+| 时间输入 | **出严进宽**：`T` 与空格分隔都接受，秒与小数秒可省 | 不打断已经在发 ISO 的调用方 |
 
 两条容易踩的：
 
-1. **要保持数字形态的** **`Long`** **字段，用** **`@JsonFormat(shape = JsonFormat.Shape.NUMBER)`** **排除。**
+1. **要保持数字形态的 `Long` 字段，用 `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` 排除。**
    框架自己在 `PageResult` 的 `total`/`current`/`size`/`pages` 上用了它——分页元信息
    不可能接近 2^53，而 `el-pagination` 的 `:total` 要求数字。这是**唯一**的例外，
    新增例外要有同等强度的理由。
-2. **绝不要自己声明** **`@Bean ObjectMapper`。** 那会顶掉 Spring Boot 的全部默认配置，
+2. **绝不要自己声明 `@Bean ObjectMapper`。** 那会顶掉 Spring Boot 的全部默认配置，
    并让业务方的 `spring.jackson.*` 全部失效。要改约定就加 `Module` Bean，
    Boot 会自动收集，且注册在内置 `JavaTimeModule` 之后，天然覆盖。
 
@@ -380,7 +381,7 @@ Tailwind v4（`@import 'tailwindcss'`）把自己生成的全部工具类放进
 首次踩坑记录：`views/oper-log/index.vue` 筛选栏，三个控件的宽度类从未生效，
 `flex-wrap` 逐个把它们挤到下一行，表现为"查询参数一个一行"。
 
-***
+---
 
 ## 5. 兼容性与发布
 
@@ -389,7 +390,7 @@ Tailwind v4（`@import 'tailwindcss'`）把自己生成的全部工具类放进
 - `api/` 包下的 public 签名 = 兼容性承诺范围
 - 每次发版的 CHANGELOG 必须分 Breaking Changes / New Features / Bug Fixes 三类
 
-***
+---
 
 ## 6. 常用命令
 
@@ -407,19 +408,18 @@ mvn -f framework/pom.xml clean install -Dgpg.skip=true
 mvn -f framework/pom.xml clean verify -Prelease -Dgpg.skip=true
 ```
 
-**发布相关操作一律参照** **`docs/RELEASE.md`**，不要凭记忆执行——
+**发布相关操作一律参照 `docs/RELEASE.md`**，不要凭记忆执行——
 发到 Maven Central 的版本不可撤回、不可覆盖。
 
-***
+---
 
 ## 7. 给 AI Agent 的额外提示
 
-- **开工前先读** **`docs/PROGRESS.md`**——它写「现在到哪了、下一步做什么」。
+- **开工前先读 `docs/PROGRESS.md`**——它写「现在到哪了、下一步做什么」。
   多仓拓扑下，"本地已完成但尚未推上 GitHub"是常态，光看远端仓库会得出错误结论
-- **改动前先读** **`develop_plan.md`** **对应章节**，本文件只写结论不写理由，理由在方案里
+- **改动前先读 `develop_plan.md` 对应章节**，本文件只写结论不写理由，理由在方案里
 - 遇到版本问题查 `VERSION_BASELINE.md`，里面记录了已核验的事实和已知的错误信息源
 - 本项目多处决策是**有意选择上一代技术**（Spring Boot 3.5 而非 4.x、Jackson 2 而非 3），
   这些不是"过时待升级"，不要主动"帮忙升级"
 - 同理，`mysql-connector-j` 的 `8.2.0` 默认值是**有意钉住**的（8.3.0 起不再支持 MySQL 5.7），不要升级
 - 发布相关操作参照 `docs/RELEASE.md`，不要凭记忆执行
-
