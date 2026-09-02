@@ -355,7 +355,13 @@
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>
-              <autoPublish>false</autoPublish>
+              <!--
+                0.2.0 已走通 draft → 手动 Publish 全链路，自 0.2.1 起改为 autoPublish：
+                推 tag 即直接发布到 Central，不再有 Portal 网页人工确认环节。
+                （RELEASE.md §4.2.d 允许链路稳定后这么做。）
+              -->
+              <autoPublish>true</autoPublish>
+              <waitUntil>published</waitUntil>
             </configuration>
           </plugin>
         </plugins>

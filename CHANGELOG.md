@@ -10,7 +10,7 @@
 > **本插件的版本线与框架独立**。插件发 1.3.0 完全可能仍然只要求框架 1.0.0，
 > 因此每个版本都必须写明适配的框架版本，见下方各条目的「框架要求」。
 
-## 0.2.1 (未发布)
+## 0.2.1 (2026-09-02)
 
 安全修复版本，无 API 变化。
 
@@ -31,6 +31,12 @@
   对超长输入会抛 `StackOverflowError`（CVSS 5.3）。在插件 POM 的 `dependencyManagement`
   中显式钉到修复版 **3.18.0**（排在 `framework-bom` 的 import 之前以生效）。
   `mvn dependency:tree` 已确认 `commons-lang3:3.18.0`。
+
+### 发布方式
+
+- 发布 POM 的 `central-publishing-maven-plugin` 改为 `autoPublish=true` +
+  `waitUntil=published`：推 `v*` tag 即直接发到 Central，不再走 draft → Portal 网页
+  手动 Publish。0.2.0 已验证过完整链路，符合 `docs/RELEASE.md` §4.2.d 的放宽条件。
 
 ## 0.2.0 (2026-08-31)
 

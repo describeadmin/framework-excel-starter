@@ -95,8 +95,9 @@ jobs:
           CENTRAL_TOKEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: 后续手工步骤提示
+      - name: 发布结果提示
         if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
         run: |
-          echo "制品已上传为 draft。"
-          echo "请前往 https://central.sonatype.com/publishing/deployments 确认后手动 Publish。"
+          echo "POM 已配 autoPublish=true + waitUntil=published，制品已直接发布到 Central，无需手工 Publish。"
+          echo "同步到 repo1.maven.org 检索通常还需几分钟到几十分钟。"
+          echo "核实：curl -s https://repo1.maven.org/maven2/io/github/describeadmin/framework-excel-starter/maven-metadata.xml"
