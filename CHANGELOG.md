@@ -10,6 +10,28 @@
 > **本插件的版本线与框架独立**。插件发 1.3.0 完全可能仍然只要求框架 1.0.0，
 > 因此每个版本都必须写明适配的框架版本，见下方各条目的「框架要求」。
 
+## 0.2.1 (未发布)
+
+安全修复版本，无 API 变化。
+
+**框架要求：0.2.0 及以上**（同 0.2.0，未变）
+
+### Breaking Changes
+
+无。
+
+### New Features
+
+无。
+
+### Bug Fixes
+
+- **CVE-2025-48924**：`fesod-sheet` → `poi 5.5.1` 传递引入的 `commons-lang3`
+  被 `spring-boot-dependencies 3.5.16` 仲裁在 3.17.0，该版本 `ClassUtils.getClass(...)`
+  对超长输入会抛 `StackOverflowError`（CVSS 5.3）。在插件 POM 的 `dependencyManagement`
+  中显式钉到修复版 **3.18.0**（排在 `framework-bom` 的 import 之前以生效）。
+  `mvn dependency:tree` 已确认 `commons-lang3:3.18.0`。
+
 ## 0.2.0 (2026-08-31)
 
 describeadmin 的第一个 Web 层插件：为框架补上 Excel 导入 / 导出能力。
