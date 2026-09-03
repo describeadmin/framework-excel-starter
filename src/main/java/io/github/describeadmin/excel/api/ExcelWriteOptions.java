@@ -1,7 +1,10 @@
 package io.github.describeadmin.excel.api;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -19,6 +22,7 @@ public final class ExcelWriteOptions {
     private final Integer sheetWriteWindow;
     private final Set<String> includeFields;
     private final Set<String> excludeFields;
+    private final Map<String, List<String>> dropdowns;
 
     private ExcelWriteOptions(Builder b) {
         this.sheetName = b.sheetName;
@@ -28,6 +32,17 @@ public final class ExcelWriteOptions {
         this.sheetWriteWindow = b.sheetWriteWindow;
         this.includeFields = b.includeFields == null ? null : Set.copyOf(b.includeFields);
         this.excludeFields = b.excludeFields == null ? null : Set.copyOf(b.excludeFields);
+        this.dropdowns = copyDropdowns(b.dropdowns);
+    }
+
+    private static Map<String, List<String>> copyDropdowns(Map<String, List<String>> src) {
+        if (src == null || src.isEmpty()) {
+            return null;
+        }
+        Map<String, List<String>> copy = new LinkedHashMap<>();
+        src.forEach((field, options) ->
+                copy.put(field, options == null ? List.of() : List.copyOf(options)));
+        return Map.copyOf(copy);
     }
 
     public static ExcelWriteOptions defaults() {
@@ -73,6 +88,16 @@ public final class ExcelWriteOptions {
         return excludeFields;
     }
 
+    /**
+     * 按 Java 字段名指定列的下拉候选值（Excel 数据有效性）；{@code null} 表示没有编程式下拉。
+     *
+     * <p>与行模型字段上的 {@link ExcelColumnDropdown} 注解叠加，且<b>本 map 优先</b>：同名字段
+     * 两边都配了，用这里的选项；只有这里配、字段没注解，也会生成下拉（严格模式、默认行范围）。
+     */
+    public Map<String, List<String>> dropdowns() {
+        return dropdowns;
+    }
+
     public static final class Builder {
         private String sheetName;
         private String fileName;
@@ -81,6 +106,7 @@ public final class ExcelWriteOptions {
         private Integer sheetWriteWindow;
         private Set<String> includeFields;
         private Set<String> excludeFields;
+        private Map<String, List<String>> dropdowns;
 
         public Builder sheetName(String sheetName) {
             this.sheetName = sheetName;
@@ -114,6 +140,27 @@ public final class ExcelWriteOptions {
 
         public Builder excludeFields(Collection<String> fields) {
             this.excludeFields = fields == null ? null : new LinkedHashSet<>(fields);
+            return this;
+        }
+
+        /**
+         * 追加一列的下拉候选值（按 Java 字段名）。多次调用累加；对同一字段后一次覆盖前一次。
+         * {@code options} 为 {@code null} / 空时该字段不加下拉。
+         */
+        public Builder dropdown(String field, List<String> options) {
+            if (field == null) {
+                return this;
+            }
+            if (this.dropdowns == null) {
+                this.dropdowns = new LinkedHashMap<>();
+            }
+            this.dropdowns.put(field, options);
+            return this;
+        }
+
+        /** 整体替换下拉配置（按 Java 字段名 → 候选值）。{@code null} 清空。 */
+        public Builder dropdowns(Map<String, List<String>> dropdowns) {
+            this.dropdowns = dropdowns == null ? null : new LinkedHashMap<>(dropdowns);
             return this;
         }
 

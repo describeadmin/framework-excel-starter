@@ -178,6 +178,79 @@ public Result<ExcelImportResult<EmployeeRow>> importRows(
 `@PreAuthorize("hasAuthority('<模块>:<对象>:<动作>')")`，动作沿用 `CLAUDE.md` 4.5 的
 `list` / `add` / `edit` / `remove`（导出通常复用 `list`，导入复用 `add` 或 `edit`）。
 
+### 5. 列下拉框（数据有效性）
+
+给导出 / 模板下载的某一列加下拉框，用户从预设选项里选而不是手填。**只影响导出**，
+导入侧不读它。
+
+行模型字段上标 `@ExcelColumnDropdown`：
+
+```java
+public class EnterpriseExcelRow {
+
+    @ExcelProperty("单位名称")
+    private String name;
+
+    @ExcelProperty("单位性质")
+    @ExcelColumnDropdown(source = EnterpriseTypeOptions.class)   // 动态：运行期取字典
+    private String type;
+
+    @ExcelProperty("状态")
+    @ExcelColumnDropdown({"启用", "停用"})                         // 静态
+    private String status;
+}
+```
+
+`source` 指向一个 `DropdownOptionSource` 实现，**优先按类型解析为 Spring Bean**（于是能
+注入字典服务 / Mapper），拿不到容器时退化为无参构造实例化：
+
+```java
+@Component
+public class EnterpriseTypeOptions implements DropdownOptionSource {
+    private final SysDictDataService dict;   // 业务方自己的 Bean
+
+    public EnterpriseTypeOptions(SysDictDataService dict) { this.dict = dict; }
+
+    @Override public List<String> options() {
+        return dict.listByType("enterprise_type").stream().map(SysDictData::getDictLabel).toList();
+    }
+}
+```
+
+`@ExcelResponse` 端点自动生效（advice 走的是 `ExcelExporter` 门面），端点代码不用改：
+
+```java
+@GetMapping("/import/template")
+@ExcelResponse(fileName = "客户单位导入模板.xlsx", model = EnterpriseExcelRow.class)
+public List<EnterpriseExcelRow> importTemplate() {
+    return List.of();
+}
+```
+
+调用方手上已经有选项数据时，用 `ExcelWriteOptions` 按字段名塞、**优先级高于注解**
+（也可给没有注解的字段单独加下拉）：
+
+```java
+exporter.writeToResponse(response, rows, EnterpriseExcelRow.class,
+        ExcelWriteOptions.builder()
+                .fileName("客户单位导入模板.xlsx")
+                .dropdown("type", typeLabels)          // Java 字段名 -> 候选值
+                .dropdown("status", List.of("启用", "停用"))
+                .build());
+```
+
+| 注解属性 | 默认 | 说明 |
+|---|---|---|
+| `value` | `{}` | 静态候选值；与 `source` 二选一，都给时 `source` 赢 |
+| `source` | `None` | 动态候选值来源（`DropdownOptionSource` 实现类） |
+| `strict` | `true` | `true` = 填选项外的值弹错并拒绝（`ErrorStyle.STOP`）；`false` = 仅警告 |
+| `firstRow` / `lastRow` | `1` / `5000` | 下拉生效的行范围（0 基、含两端；第 0 行是表头） |
+
+实现上，候选值写进一张隐藏工作表（`_dd_options`）、数据有效性用公式引用它，绕开 Excel
+「内联清单 255 字符」上限；列位置按 Fesod 实际的表头映射用字段名反查，
+`@ExcelProperty(index = ...)` / `excludeFields` 造成的错位都能对齐。选项为空（`source`
+返回空列表、`value` 未填）时该列静默跳过、不报错。
+
 ***
 
 ## 雪花 `Long` 为什么默认写成文本

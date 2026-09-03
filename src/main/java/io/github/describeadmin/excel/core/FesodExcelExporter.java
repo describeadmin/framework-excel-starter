@@ -20,9 +20,20 @@ import java.util.List;
 public class FesodExcelExporter implements ExcelExporter {
 
     private final FrameworkExcelProperties properties;
+    private final DropdownOptionSourceResolver dropdownResolver;
 
     public FesodExcelExporter(FrameworkExcelProperties properties) {
+        this(properties, null);
+    }
+
+    /**
+     * @param dropdownResolver 解析 {@code @ExcelColumnDropdown(source = ...)} 声明的类型；
+     *                         {@code null} 时退化为无参反射实例化（纯门面、无 Spring 容器的场景）
+     */
+    public FesodExcelExporter(FrameworkExcelProperties properties, DropdownOptionSourceResolver dropdownResolver) {
         this.properties = properties;
+        this.dropdownResolver = dropdownResolver != null
+                ? dropdownResolver : DropdownOptionSourceResolver.reflective();
     }
 
     @Override
@@ -43,6 +54,12 @@ public class FesodExcelExporter implements ExcelExporter {
         }
         if (opts.excludeFields() != null && !opts.excludeFields().isEmpty()) {
             builder.excludeColumnFieldNames(opts.excludeFields());
+        }
+
+        List<DropdownSheetWriteHandler.FieldDropdown> dropdowns =
+                DropdownConfig.resolve(model, opts.dropdowns(), dropdownResolver);
+        if (!dropdowns.isEmpty()) {
+            builder.registerWriteHandler(new DropdownSheetWriteHandler(dropdowns));
         }
 
         try {

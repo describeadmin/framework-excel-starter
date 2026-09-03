@@ -10,6 +10,41 @@
 > **本插件的版本线与框架独立**。插件发 1.3.0 完全可能仍然只要求框架 1.0.0，
 > 因此每个版本都必须写明适配的框架版本，见下方各条目的「框架要求」。
 
+## 0.2.2 (未发布)
+
+导出侧新增「列下拉框」（Excel 数据有效性）能力。纯增量，无 Breaking Change。
+
+**框架要求：0.2.0 及以上**（同 0.2.0，未变）
+
+### Breaking Changes
+
+无。
+
+### New Features
+
+- `@ExcelColumnDropdown`（字段级，`api/`）：给导出 / 模板下载的某一列加下拉框，用户从
+  预设选项里选而不是手填。候选值二选一——静态 `value = {"启用", "停用"}`，或动态
+  `source = XxxOptions.class`（一个 `DropdownOptionSource` 实现，优先按类型解析为 Spring
+  Bean，于是能注入字典服务 / Mapper；拿不到容器时退化为无参实例化）。`strict` 控制填了
+  选项外的值是拒绝（默认，`ErrorStyle.STOP`）还是仅警告；`firstRow` / `lastRow` 控制
+  作用行范围（默认 `1..5000`）。
+- `DropdownOptionSource`（`api/`）：上面 `source()` 用的候选值提供者，函数式接口。
+- `ExcelWriteOptions.Builder#dropdown(String field, List<String> options)` /
+  `#dropdowns(Map)`：按 Java 字段名编程式指定下拉候选值，**优先级高于注解**——适合
+  Controller 里已经查好字典 label、不想再写一个 `DropdownOptionSource` 的场合；也可给
+  没有注解的字段单独加下拉。
+- `@ExcelResponse` 端点自动生效：advice 走的还是 `ExcelExporter` 门面，模型上标了
+  `@ExcelColumnDropdown` 即可，端点代码不用改。
+- 实现方式：候选值写进一张隐藏工作表、数据有效性用公式引用它，绕开 Excel「内联清单
+  255 字符」上限；列位置在 `afterSheetCreate` 时按 Fesod 的表头映射用字段名反查，
+  `@ExcelProperty(index = ...)` / `excludeFields` 造成的错位都能对齐。
+- `FesodExcelExporter` 新增 `(FrameworkExcelProperties, DropdownOptionSourceResolver)`
+  构造器；原单参构造器保留（`resolver` 传 `null` 即退化为反射实例化），门面用法不变。
+
+### Bug Fixes
+
+无。
+
 ## 0.2.1 (2026-09-02)
 
 安全修复版本，无 API 变化。

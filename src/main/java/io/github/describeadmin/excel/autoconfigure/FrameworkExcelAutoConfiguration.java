@@ -3,16 +3,19 @@ package io.github.describeadmin.excel.autoconfigure;
 import io.github.describeadmin.common.api.FrameworkVersion;
 import io.github.describeadmin.excel.api.ExcelExporter;
 import io.github.describeadmin.excel.api.ExcelImporter;
+import io.github.describeadmin.excel.core.DropdownOptionSourceResolver;
 import io.github.describeadmin.excel.core.ExcelBodyArgumentResolver;
 import io.github.describeadmin.excel.core.ExcelResponseBodyAdvice;
 import io.github.describeadmin.excel.core.FesodExcelExporter;
 import io.github.describeadmin.excel.core.FesodExcelImporter;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -58,8 +61,24 @@ public class FrameworkExcelAutoConfiguration {
     // 整体顶替插件的实现（registry.md 准入规范第 7 条）。
     @Bean
     @ConditionalOnMissingBean(ExcelExporter.class)
-    public FesodExcelExporter excelExporter(FrameworkExcelProperties properties) {
-        return new FesodExcelExporter(properties);
+    public FesodExcelExporter excelExporter(FrameworkExcelProperties properties,
+                                            ApplicationContext applicationContext) {
+        return new FesodExcelExporter(properties, springDropdownOptionSourceResolver(applicationContext));
+    }
+
+    /**
+     * 把 {@code @ExcelColumnDropdown(source = X.class)} 的 {@code X} 优先当 Spring Bean 按类型取
+     * （于是它能注入字典服务 / Mapper）；不是 Bean 时退回无参构造实例化。
+     */
+    private static DropdownOptionSourceResolver springDropdownOptionSourceResolver(ApplicationContext applicationContext) {
+        DropdownOptionSourceResolver reflective = DropdownOptionSourceResolver.reflective();
+        return type -> {
+            try {
+                return applicationContext.getBean(type);
+            } catch (BeansException notASpringBean) {
+                return reflective.resolve(type);
+            }
+        };
     }
 
     @Bean
