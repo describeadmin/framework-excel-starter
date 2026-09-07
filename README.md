@@ -334,7 +334,7 @@ POI 用 `log4j-api` 作日志门面，由 Spring Boot 的 `log4j-to-slf4j` 桥�
 ## 相关文档
 
 - 插件准入规范与目录：docs 仓 `registry.md`
-- 编码规范：`CLAUDE.md`（组织级母本在 docs 仓，本仓为副本，**不要单独修改**）
+- 编码规范：docs 仓 `CLAUDE.md`（各子仓不再放副本，开发时把本仓与 `docs` 仓并列检出）
 - 发布步骤：docs 仓 `RELEASE.md`——发到 Maven Central 的版本不可撤回、不可覆盖
 
 ## License
