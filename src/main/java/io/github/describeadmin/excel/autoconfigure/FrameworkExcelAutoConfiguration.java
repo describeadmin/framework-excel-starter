@@ -48,8 +48,8 @@ import java.util.List;
 @EnableConfigurationProperties(FrameworkExcelProperties.class)
 public class FrameworkExcelAutoConfiguration {
 
-    /** 本插件要求的最低框架版本：依赖 framework-web-starter 0.2.0 的 MVC 装配点与 GlobalExceptionHandler 契约。 */
-    public static final String REQUIRED_FRAMEWORK_VERSION = "0.2.0";
+    /** 本插件要求的最低框架版本：1.0.0 是第一个正式版（0.x 不做兼容）；依赖 framework-web-starter 的 MVC 装配点与 GlobalExceptionHandler 契约。 */
+    public static final String REQUIRED_FRAMEWORK_VERSION = "1.0.0";
 
     public FrameworkExcelAutoConfiguration() {
         // 放在构造函数里：条件都满足、真的要装配本插件时才检查，插件未激活时不因版本不匹配把应用打死。
@@ -120,16 +120,16 @@ public class FrameworkExcelAutoConfiguration {
     }
 
     /**
-     * 字典 / 枚举 ⇄ 字面量转换的装配位——<b>v0.3.0 的空桩</b>。
+     * 字典 / 枚举 ⇄ 字面量转换的装配位——<b>预留的空桩</b>。
      *
      * <p>v1 只在 {@code api/} 重导出 Fesod 的 {@code Converter} SPI（{@code ExcelConverter}），
      * 业务方用 {@code @ExcelProperty(converter = X.class)} 自解；DB 版 {@code @ExcelDict}
-     * 推迟到 v0.3.0，届时在此处按 {@code @ConditionalOnClass} 字符串形式挂
+     * 推迟到后续版本，届时在此处按 {@code @ConditionalOnClass} 字符串形式挂
      * {@code framework-system-starter} 的 {@code SysDictDataService}。现在只把接缝留出来。
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(name = "io.github.describeadmin.system.service.SysDictDataService")
     static class DictConverterConfiguration {
-        // TODO(v0.3.0): DB-backed @ExcelDict("dict_type") Converter，字符串形式 @ConditionalOnClass 守卫。
+        // TODO: DB-backed @ExcelDict("dict_type") Converter，字符串形式 @ConditionalOnClass 守卫。
     }
 }

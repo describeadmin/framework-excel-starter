@@ -25,6 +25,7 @@ describeadmin 的**可选插件**：Excel 导入 / 导出——门面 `ExcelExpo
 | 插件版本 | 最低框架版本 | 说明 |
 |---|---|---|
 | 0.2.0 | **0.2.0** | 依赖 framework-web-starter 0.2.0 的 MVC 装配点与 `GlobalExceptionHandler` 契约；门面部分只依赖 framework-common |
+| 1.0.0 | **1.0.0** | 第一个正式版。新增导出列下拉框 `@ExcelColumnDropdown`（原 0.2.2，未发布） |
 
 这张表不是文档承诺，是**可执行的**：
 
@@ -33,16 +34,16 @@ describeadmin 的**可选插件**：Excel 导入 / 导出——门面 `ExcelExpo
   `NoSuchMethodError`
 - CI 对表中每个框架版本各跑一遍完整测试（见 `.github/workflows/ci.yml`）
 
-> ⚠️ **0.x 期间请逐版本核对**。SemVer 对 `0.x` 不作任何保证，本项目的 0.2.0 就带过
-> Breaking Change。框架比插件构建时更新且主版本相同时，插件只记一条 WARN 而不阻断——
-> 那条 WARN 要当回事。
+> ⚠️ **0.x 与 1.x 不互通**。1.0.0 是第一个正式版，0.x 按测试版对待、不做兼容；
+> 框架与插件主版本不同时，插件在启动时直接拒绝（`FrameworkVersion.requireCompatible`）。
+> 1.x 内框架比插件构建时更新时只记一条 WARN、不阻断。
 
 > ⚠️ **Apache Fesod 仍在 ASF 孵化**。其 POM 自述"IP Clearance and license header updates
 > for legacy code derived from Alibaba EasyExcel are currently in progress"，并提示下游
 > "need to conduct a thorough licensing review"。把本插件用于对外发布的产品前，请自行完成
 > 许可审查。当前依赖 `org.apache.fesod:fesod-sheet:2.0.2-incubating`。
 
-字典 / 枚举 ⇄ 字面量转换 v1 **未内置**（推迟到 v0.3.0，见下方「进阶」）。
+字典 / 枚举 ⇄ 字面量转换 v1 **未内置**（推迟到后续版本，见下方「进阶」）。
 
 ***
 
@@ -52,7 +53,7 @@ describeadmin 的**可选插件**：Excel 导入 / 导出——门面 `ExcelExpo
 <dependency>
   <groupId>io.github.describeadmin</groupId>
   <artifactId>framework-excel-starter</artifactId>
-  <version>0.2.0</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -274,7 +275,7 @@ exporter.writeToResponse(response, rows, EnterpriseExcelRow.class,
 
 ## 进阶：字典 / 枚举 ⇄ 字面量
 
-v1 **不内置** DB 版 `@ExcelDict`（推迟到 v0.3.0）。在那之前，`api/ExcelConverter<J>` 是
+v1 **不内置** DB 版 `@ExcelDict`（推迟到后续版本）。在那之前，`api/ExcelConverter<J>` 是
 Fesod `Converter` SPI 的薄再导出——业务方写一个实现类，在字段上挂
 `@ExcelProperty(converter = X.class)` 即可：
 
@@ -302,11 +303,11 @@ public class StatusConverter implements ExcelConverter<Integer> {
 ## 开发 / 测试
 
 ```bash
-# 框架尚未发布 0.2.0 时，先从框架仓装一份到本地仓库
+# 框架尚未发布到 Central 的版本，先从框架仓装一份到本地仓库
 mvn -f ../framework/pom.xml clean install -DskipTests -Dgpg.skip=true
 
 mvn clean test                                # 无需 Docker / 中间件
-mvn test -Ddescribeadmin.version=0.3.0        # 针对另一个框架版本跑，即 CI 矩阵做的事
+mvn test -Ddescribeadmin.version=1.1.0        # 针对另一个框架版本跑，即 CI 矩阵做的事
 ```
 
 构建**不要求特定 JDK 版本**，唯一前提是 **JDK >= 17**（由 enforcer 的 `requireJavaVersion`
