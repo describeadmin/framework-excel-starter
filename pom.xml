@@ -290,7 +290,7 @@
   </build>
 
   <profiles>
-    <!-- 发布 profile，与 framework-cache-redis-starter/framework-crypto-starter 保持一致。步骤参照 docs 仓的 RELEASE.md。 -->
+    <!-- 发布 profile，与 framework-cache-redis-starter/framework-crypto-starter 保持一致。步骤参照 docs/site/dev/release.md。 -->
     <profile>
       <id>release</id>
       <build>

@@ -41,7 +41,7 @@ import java.util.List;
  *
  * <p>每个 {@code @Bean} 都带 {@code @ConditionalOnMissingBean} 且<b>绑定到具体实现类</b>
  * （{@code FesodExcelExporter} / {@code FesodExcelImporter} / {@code ExcelResponseBodyAdvice}），
- * 业务方自己注册的同类型 Bean 一定赢（registry.md 准入规范第 7 条）。
+ * 业务方自己注册的同类型 Bean 一定赢（docs/site/dev/plugin-dev.md 第 7 条）。
  */
 @AutoConfiguration(afterName = "io.github.describeadmin.web.autoconfigure.FrameworkWebAutoConfiguration")
 @ConditionalOnProperty(prefix = "describeadmin.excel", name = "enabled", havingValue = "true", matchIfMissing = true)
@@ -58,7 +58,7 @@ public class FrameworkExcelAutoConfiguration {
 
     // @ConditionalOnMissingBean 绑定到【接口】而不是具体类：ExcelExporter / ExcelImporter 是
     // 单一门面（不是 CryptoProvider 那种多实现共存模型），业务方注册自己的 ExcelExporter 就应当
-    // 整体顶替插件的实现（registry.md 准入规范第 7 条）。
+    // 整体顶替插件的实现（docs/site/dev/plugin-dev.md 第 7 条）。
     @Bean
     @ConditionalOnMissingBean(ExcelExporter.class)
     public FesodExcelExporter excelExporter(FrameworkExcelProperties properties,
@@ -92,7 +92,7 @@ public class FrameworkExcelAutoConfiguration {
      *
      * <p>嵌套配置类 + 类级 {@code @ConditionalOnClass}：Spring 用 ASM 读注解，不会因为纯门面
      * （无 Spring MVC）的消费方而提前 link-load {@code ResponseBodyAdvice}
-     * （registry.md 准入规范第 3 条的写法，同 crypto 的 {@code Sm4Configuration}）。
+     * （docs/site/dev/plugin-dev.md 第 3 条的写法，同 crypto 的 {@code Sm4Configuration}）。
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
