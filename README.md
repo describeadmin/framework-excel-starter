@@ -1,5 +1,7 @@
 # framework-excel-starter
 
+![Describe Admin](./assets/logo-text.svg)
+
 describeadmin 的可选插件。Excel 导入导出：`ExcelExporter` / `ExcelImporter` 门面，加上 `@ExcelResponse` / `@ExcelBody` 两个注解，基于 Apache Fesod。
 
 **文档：[https://describeadmin.github.io/docs/how-to/excel](https://describeadmin.github.io/docs/how-to/excel)**，全部配置项见 [插件配置](https://describeadmin.github.io/docs/reference/configuration/plugins)。
