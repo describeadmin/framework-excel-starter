@@ -1,6 +1,9 @@
 # framework-excel-starter
 
-![Describe Admin](./assets/logo-text.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/logo-text.svg">
+  <img alt="Describe Admin" src="./assets/logo-text-light.svg">
+</picture>
 
 describeadmin 的可选插件。Excel 导入导出：`ExcelExporter` / `ExcelImporter` 门面，加上 `@ExcelResponse` / `@ExcelBody` 两个注解，基于 Apache Fesod。
 
